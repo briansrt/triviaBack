@@ -217,7 +217,10 @@ socket.on("rouletteFinished", async ({ roomCode, category }) => {
         io.to(roomCode).emit("gameWinner", winner);
       } else if (alive.length > 1) {
         delete activeQuestions[roomCode];
-        io.to(roomCode).emit("startRoulette");
+        const categories = ["Ciencia", "Arte", "Historia", "Geografía", "Deportes", "Tecnología"];
+        const selectedCategory = categories[Math.floor(Math.random() * categories.length)];
+        io.to(roomCode).emit("startRoulette", selectedCategory);
+
         
       }else {
         // ❗ Nadie quedó vivo → empate o todos perdieron
