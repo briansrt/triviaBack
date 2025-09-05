@@ -219,7 +219,10 @@ socket.on("rouletteFinished", async ({ roomCode, category }) => {
         delete activeQuestions[roomCode];
         const categories = ["Ciencia", "Arte", "Historia", "Geografía", "Deportes", "Tecnología"];
         const selectedCategory = categories[Math.floor(Math.random() * categories.length)];
-        io.to(roomCode).emit("startRoulette", selectedCategory);
+
+        setTimeout(() => {
+          io.to(roomCode).emit("startRoulette", selectedCategory);
+        }, 500);
 
         
       }else {
@@ -304,7 +307,9 @@ console.log(`[📦 questionData]`, JSON.stringify(activeQuestions[roomCode], nul
           setTimeout(() => {
             const categories = ["Ciencia", "Arte", "Historia", "Geografía", "Deportes", "Tecnología"];
             const selectedCategory = categories[Math.floor(Math.random() * categories.length)];
-            io.to(roomCode).emit("startRoulette", selectedCategory);
+            setTimeout(() => {
+              io.to(roomCode).emit("startRoulette", selectedCategory);
+            }, 500);
             console.log("🌀 Emitiendo nueva ruleta con categoría:", selectedCategory);
             delete activeQuestions[roomCode];
           }, 2000);
