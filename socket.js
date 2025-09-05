@@ -125,40 +125,6 @@ socket.on("joinRoom", async ({ roomCode, userId, name, imageUrl }) => {
       const rooms = await db.collection("rooms").find({status: "waiting"}).toArray();
       io.emit("roomList", rooms);
     });
-  
-  
-    socket.on("getRoomState", async ({ roomCode }) => {
-      const client = await getClient();
-      const db = client.db("trivia");
-
-      const room = await db.collection("rooms").findOne({ roomCode });
-      if (!room) return;
-
-      const questionData = activeQuestions[roomCode];
-
-      const phase =
-        room.status === "waiting"
-          ? "waiting"
-          : room.status === "finished"
-          ? "result"
-          : questionData
-          ? "question"
-          : "roulette";
-
-      socket.emit("roomState", {
-        phase,
-        category: questionData?.category || null,
-        question: questionData
-          ? {
-              text: questionData.text,
-              options: questionData.options,
-              difficulty: questionData.difficulty,
-              timeLimit: 5,
-            }
-          : null,
-      });
-    });
-
 
 
 
@@ -251,9 +217,7 @@ socket.on("rouletteFinished", async ({ roomCode, category }) => {
         io.to(roomCode).emit("gameWinner", winner);
       } else if (alive.length > 1) {
         delete activeQuestions[roomCode];
-        const categories = ["Ciencia", "Arte", "Historia", "Geografía", "Deportes", "Tecnología"];
-        const selectedCategory = categories[Math.floor(Math.random() * categories.length)];
-        io.to(roomCode).emit("startRoulette", selectedCategory);
+        io.to(roomCode).emit("startRoulette");
         
       }else {
         // ❗ Nadie quedó vivo → empate o todos perdieron
