@@ -100,9 +100,11 @@ socket.on("joinRoom", async ({ roomCode, userId, name, imageUrl }) => {
     io.to(updatedRoom.roomCode).emit("startGame", { roomCode: updatedRoom.roomCode }); // 👈 ahora sí todos
 
     console.log("🚀 Iniciando ruleta...");
-    const categories = ["Ciencia", "Arte", "Historia", "Geografía", "Deportes", "Tecnología"];
-    const selectedCategory = categories[Math.floor(Math.random() * categories.length)];
-    io.to(updatedRoom.roomCode).emit("startRoulette", selectedCategory);  // 👈 pasarla aquí
+    setTimeout(() => {
+      const categories = ["Ciencia", "Arte", "Historia", "Geografía", "Deportes", "Tecnología"];
+      const selectedCategory = categories[Math.floor(Math.random() * categories.length)];
+      io.to(updatedRoom.roomCode).emit("startRoulette", selectedCategory);
+    }, 500); // espera 500ms antes de emitir la ruleta
   }
 });
 
