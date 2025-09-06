@@ -157,12 +157,19 @@ socket.on("rouletteFinished", async ({ roomCode, category }) => {
       category: selectedCategory
     };
 
-    io.to(roomCode).emit("newQuestion", {
-      text: enunciado,
-      options: opciones,
-      difficulty: dificultad,
-      timeLimit: 5
-    });
+    for (const player of alivePlayers) {
+      const playerSocket = io.sockets.sockets.get(player.socketId);
+
+      if (playerSocket) {
+        playerSocket.emit("newQuestion", {
+          text: enunciado,
+          options: opciones,
+          difficulty: dificultad,
+          timeLimit: 5,
+          correctAnswer: respuestaCorrecta
+        });
+      }
+    }
 
     timers[roomCode] = setTimeout(async () => {
 
