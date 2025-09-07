@@ -51,14 +51,14 @@ async function updateStats({ userId, username, correct, category, won }) {
     wrongAnswers: correct === false ? 1 : 0,
   };
 
-  // Contar categoría más frecuente → lo haremos con un array de categorías acertadas
   const update = {
     $set: { username, lastPlayed: new Date() },
     $inc: inc,
   };
 
   if (correct && category) {
-    update.$push = { categories: category };
+    // Esto incrementa: categories.Ciencia → 1
+    update.$inc[`categories.${category}`] = 1;
   }
 
   await db.collection("userStats").updateOne(
@@ -67,6 +67,7 @@ async function updateStats({ userId, username, correct, category, won }) {
     { upsert: true }
   );
 }
+
 
 async function getRanking(req, res) {
   try {
