@@ -103,4 +103,17 @@ async function setWinner(req, res) {
   }
 }
 
-module.exports = { createRoom, joinRoom, updateRoomStatus, setWinner };
+async function active(req, res) {
+  try {
+    const client = await getClient();
+    const db = client.db("trivia");
+
+    const activeRooms = await db.collection("rooms").find({ status: "playing" }).project({ _id: 0 }).toArray();
+    res.json(activeRooms);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error obteniendo salas activas" });
+  }
+}
+
+module.exports = { createRoom, joinRoom, updateRoomStatus, setWinner, active };
