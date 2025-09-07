@@ -28,6 +28,7 @@ module.exports = function initSockets(io) {
         maxPlayers: 2,
         winner: null,
         createdAt: new Date(),
+        usedQuestions: []
       };
 
       await db.collection("rooms").insertOne(room);
@@ -138,14 +139,26 @@ socket.on("rouletteFinished", async ({ roomCode, category }) => {
   const room = await db.collection("rooms").findOne({ roomCode });
   if (!room) return;
   const selectedCategory = category;
+  const usedQuestions = room.usedQuestions || [];
 
   setTimeout(async () => {
     const question = await db.collection("preguntas").aggregate([
-      { $match: { categoria: selectedCategory } },
+      { $match: { categoria: selectedCategory, _id: { $nin: usedQuestions.map(id => new ObjectId(id)) } } },
       { $sample: { size: 1 } }
   ]).toArray();
 
+  if (question.length === 0) {
+    io.to(roomCode).emit("noMoreQuestions", {
+      message: `No hay más preguntas disponibles en la categoría ${selectedCategory}`
+    });
+    return;
+  }
+
   if (question[0]) {
+    await db.collection("rooms").updateOne(
+      { roomCode },
+      { $push: { usedQuestions: question[0]._id } }
+    );
     const { enunciado, opciones, respuestaCorrecta, dificultad } = question[0];
     const alivePlayers = room.players.filter(p => p.status === "alive");
 
