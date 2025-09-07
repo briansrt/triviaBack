@@ -44,28 +44,33 @@ async function updateStats({ userId, username, correct, category, won }) {
   const client = await getClient();
   const db = client.db("trivia");
 
-  const inc = {
-    gamesPlayed: won !== undefined ? 1 : 0,
-    gamesWon: won ? 1 : 0,
-    correctAnswers: correct ? 1 : 0,
-    wrongAnswers: correct === false ? 1 : 0,
-  };
-
-  const update = {
-    $setOnInsert: { categories: {} }, // <-- ¡esto es clave!
+  const baseUpdate = {
     $set: { username, lastPlayed: new Date() },
-    $inc: inc,
+    $inc: {
+      gamesPlayed: won !== undefined ? 1 : 0,
+      gamesWon: won ? 1 : 0,
+      correctAnswers: correct ? 1 : 0,
+      wrongAnswers: correct === false ? 1 : 0,
+    }
   };
 
-  if (correct && category) {
-    update.$inc[`categories.${category}`] = 1;
-  }
-
+  // Asegurar que el documento existe primero (sin hacer $inc a categories aún)
   await db.collection("userStats").updateOne(
     { userId },
-    update,
+    {
+      $setOnInsert: { categories: {} },
+      ...baseUpdate
+    },
     { upsert: true }
   );
+
+  // Luego, en una operación aparte, aplicar el $inc a categories (evita conflicto)
+  if (correct && category) {
+    await db.collection("userStats").updateOne(
+      { userId },
+      { $inc: { [`categories.${category}`]: 1 } }
+    );
+  }
 }
 
 
