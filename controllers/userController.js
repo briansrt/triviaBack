@@ -52,12 +52,12 @@ async function updateStats({ userId, username, correct, category, won }) {
   };
 
   const update = {
+    $setOnInsert: { categories: {} }, // <-- ¡esto es clave!
     $set: { username, lastPlayed: new Date() },
     $inc: inc,
   };
 
   if (correct && category) {
-    // Esto incrementa: categories.Ciencia → 1
     update.$inc[`categories.${category}`] = 1;
   }
 
