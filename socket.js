@@ -25,7 +25,7 @@ module.exports = function initSockets(io) {
         roomCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
         players: [{ userId, name, status: "alive", joinedAt: new Date(), socketId: socket.id, imageUrl }],
         status: "waiting",
-        maxPlayers: 5,
+        maxPlayers: 2,
         winner: null,
         createdAt: new Date(),
         usedQuestions: []
