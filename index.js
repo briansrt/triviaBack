@@ -23,7 +23,9 @@ const io = new Server(server, {
 
 app.use(urlencoded({extended: true}))
 app.use(json())
-
+app.get("/", (req, res) => {
+  res.send("Servidor funcionando");
+});
 app.use(cors())
 app.use("/trivia/user", userRoutes);
 app.use("/trivia/questions", questionRoutes);
